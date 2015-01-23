@@ -7,7 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.apache.http.HttpEntity;
@@ -26,23 +26,25 @@ import java.net.URL;
 import java.util.Random;
 
 public class MainActivity extends Activity {
-    private String weatherUrl = "http://api.openweathermap.org/data/2.5/weather?q=Melbourne,au";
-    private String quoteUrl = "http://www.iheartquotes.com/api/v1/random";
+    private final String weatherUrl = "http://api.openweathermap.org/data/2.5/weather?q=Melbourne,au";
+    private final String quoteUrl = "http://www.iheartquotes.com/api/v1/random";
+    private final int maxImgId = 18;
     Bitmap bitmap;
     private String description;
     private String wind;
     private int temp_max;
     private int temp_min;
     private TextView tv,tv2;
-    private View view;
-
+    //private View view;
+    private ImageView iv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tv = (TextView) findViewById(R.id.textView);
         tv2 = (TextView) findViewById(R.id.textView2);
-        view = (View) findViewById(R.id.view);
+        //view = (View) findViewById(R.id.view);
+        iv = (ImageView) findViewById(R.id.imageView);
         /*load image from SD card
         String pathName = "https://github.com/tengr/MyWeatherNTrainApp/blob/master/app/src/main/res/drawable/pic1.jpg";
         Resources res = getResources();
@@ -91,18 +93,18 @@ public class MainActivity extends Activity {
                 wind = jObject.get("wind").toString();
 
             }catch(Exception e){
-                tv.setText("Exception!");
             }
             return null;
         }
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            tv.setText("Melbourne Weather:\nDescription: " + description
-                        + "\nHigh:" + temp_max + "\u00b0" + "C"
-                        + "\nLow:" + temp_min + "\u00b0" + "C"
+            tv.setText(description
+                        + " ,High:" + temp_max + "\u00b0" + "C"
+                        + " ,Low:" + temp_min + "\u00b0" + "C"
                         + "\nWind(m/s):" + wind);
         }
+
     }
 
 
@@ -121,19 +123,18 @@ public class MainActivity extends Activity {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputstream, "UTF-8"), 8);
                 StringBuilder sb = new StringBuilder();
                 String line = null;
-                while ((line = reader.readLine()) != null) {
+                while ((line = reader.readLine()) != null && !line.contains("[")) {
                     sb.append(line + "\n");
                 }
-                quote = sb.toString();
+                quote = sb.toString().trim().replace("&quot;", "\"");
             }catch(Exception e){
-                tv2.setText("Exception Quote");
             }
             return null;
         }
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            tv2.setText("Quote of the day:\n" + quote.split("\n\n")[0].replace("&quot;", "\""));
+            tv2.setText(quote);
         }
     }
 
@@ -141,13 +142,14 @@ public class MainActivity extends Activity {
 
     private class loadImage extends AsyncTask<Void, Void, Void> {
         BitmapDrawable bd = null;
-        Random rd = new Random(1106);
-        String fileName = "pic" + rd.nextInt(16)
+        Random rd = new Random(System.currentTimeMillis());
+        String fileName = "pic" + rd.nextInt(maxImgId) + ".jpg";
         @Override
         protected Void doInBackground(Void... params) {
             try {
                 bitmap = BitmapFactory.decodeStream((InputStream)new
-                        URL("https://raw.githubusercontent.com/tengr/MyWeatherNTrainApp/master/app/src/main/res/drawable/pic1.jpg").getContent());
+                        URL("https://raw.githubusercontent.com/tengr/MyWeatherNTrainApp/master/app/src/main/res/drawable/"
+                            + fileName ).getContent());
                 Resources res = getResources();
                 bd = new BitmapDrawable(res, bitmap);
                 }
@@ -158,7 +160,8 @@ public class MainActivity extends Activity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            view.setBackground(bd);
+            //view.setBackground(bd);
+            iv.setBackground(bd);
         }
     }
 
