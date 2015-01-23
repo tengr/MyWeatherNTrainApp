@@ -142,7 +142,7 @@ public class MainActivity extends Activity {
     private class loadImage extends AsyncTask<Void, Void, Void> {
         BitmapDrawable bd = null;
         Random rd = new Random(1106);
-        String fileName = "pic" + rd.nextInt
+        String fileName = "pic" + rd.nextInt(16)
         @Override
         protected Void doInBackground(Void... params) {
             try {
